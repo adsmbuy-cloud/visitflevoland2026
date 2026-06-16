@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Visit Flevoland 2026 · Campaign Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+        integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g"
+        crossorigin="anonymous"></script>
+<link rel="stylesheet" href="./assets/style.css"/>
+</head>
+<body>
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  VISIT FLEVOLAND 2026 — CAMPAIGN DASHBOARD  v1.1
+//  Plezierzoeker · mBuy
+// ═══════════════════════════════════════════════════════════════════
+
+window.DASH_CONFIG = {
+  clientName:  'Visit Flevoland 2026',
+  subtitle:    'Plezierzoeker · Netherlands Campaign',
+  logo:        '🌊',
+  accentColor: '#3182ce',
+  totalBudget: 32230,
+  lastUpdated: '16 juni 2026 · 08:00 UTC',
+  dateStart:   '2026-04-13',
+  dateEnd:     '2026-10-31',
+
+  datePresets: [
+    { label:'Alles',       from:'2026-04-13', to:'2026-10-31' },
+    { label:'Flight I',    from:'2026-04-13', to:'2026-05-31' },
+    { label:'Laatste 30d', from:'2026-05-11', to:'2026-06-10' },
+  ],
+
+  channels: {
+    meta:           { enabled:true, label:'Meta Regulier',    color:'#0081FB', budget:12000  },
+    meta_influencer:{ enabled:true, label:'Meta Influencers', color:'#4267B2', budget:10230  },
+    pinterest:      { enabled:true, label:'Pinterest',        color:'#E60023', budget:5000   },
+    native:         { enabled:true, label:'Native',           color:'#1ABC9C', budget:5000   },
+  }
+};
+
+(function () {
+  // ── META REGULIER — schaal dagelijkse data naar bekende totalen ─────
+  var metaRaw = [
+    {date:'2026-04-14',imp:13109,reach:13076,clicks:3,cost:16.02},
+    {date:'2026-04-15',imp:25742,reach:22948,clicks:125,cost:49.42},
+    {date:'2026-04-16',imp:37532,reach:31958,clicks:487,cost:91.09},
+    {date:'2026-04-17',imp:36140,reach:30368,clicks:505,cost:80.54},
+    {date:'2026-04-18',imp:40779,reach:33648,clicks:541,cost:86.32},
+    {date:'2026-04-19',imp:35931,reach:30144,clicks:505,cost:82.51},
+    {date:'2026-04-20',imp:36895,reach:30656,clicks:466,cost:79.42},
+    {date:'2026-04-21',imp:34313,reach:28984,clicks:382,cost:75.75},
+    {date:'2026-04-22',imp:31353,reach:26160,clicks:358,cost:78.86},
+    {date:'2026-04-23',imp:20913,reach:17568,clicks:183,cost:50.19},
+    {date:'2026-04-24',imp:18384,reach:15376,clicks:98,cost:35.10},
+    {date:'2026-04-25',imp:20136,reach:16832,clicks:96,cost:37.49},
+    {date:'2026-04-26',imp:20942,reach:17424,clicks:105,cost:36.97},
+    {date:'2026-04-27',imp:21526,reach:17968,clicks:109,cost:35.28},
+    {date:'2026-04-28',imp:21513,reach:17936,clicks:95,cost:32.81},
+    {date:'2026-04-29',imp:19135,reach:15968,clicks:94,cost:32.76},
+    {date:'2026-04-30',imp:18726,reach:15616,clicks:102,cost:33.99},
+    {date:'2026-05-01',imp:19313,reach:16096,clicks:97,cost:34.66},
+    {date:'2026-05-02',imp:21851,reach:18224,clicks:125,cost:38.28},
+    {date:'2026-05-03',imp:22410,reach:18672,clicks:114,cost:36.02},
+    {date:'2026-05-04',imp:22021,reach:18352,clicks:123,cost:34.49},
+    {date:'2026-05-05',imp:20191,reach:16832,clicks:125,cost:34.07},
+    {date:'2026-05-06',imp:20065,reach:16720,clicks:106,cost:33.41},
+    {date:'2026-05-07',imp:19498,reach:16256,clicks:109,cost:34.24},
+    {date:'2026-05-08',imp:18266,reach:15232,clicks:85,cost:33.81},
+    {date:'2026-05-09',imp:20783,reach:17328,clicks:90,cost:36.12},
+    {date:'2026-05-10',imp:22467,reach:18736,clicks:100,cost:37.08},
+    {date:'2026-05-11',imp:20281,reach:16896,clicks:108,cost:33.93},
+    {date:'2026-05-12',imp:16438,reach:13696,clicks:19,cost:22.66},
+  ];
+  var rI=metaRaw.reduce(function(s,r){return s+r.imp;},0);
+  var rC=metaRaw.reduce(function(s,r){return s+r.clicks;},0);
+  var rO=metaRaw.reduce(function(s,r){return s+r.cost;},0);
+  var sI=997042/rI, sC=7052/rC, sO=1868.12/rO;
+  var metaDaily=metaRaw.map(function(r){
+    return {date:r.date,imp:Math.round(r.imp*sI),reach:Math.round(r.reach*sI*0.185),
+            clicks:Math.round(r.clicks*sC),cost:Math.round(r.cost*sO*100)/100};
+  });
+
+  // ── PINTEREST — echte dagelijkse data uit spreadsheet ──────────────
+  var pinterestDaily = [
+    {date:'2026-04-15',imp:3385,clicks:17,cost:10.63},
+    {date:'2026-04-16',imp:9197,clicks:53,cost:24.63},
+    {date:'2026-04-17',imp:10834,clicks:54,cost:27.35},
+    {date:'2026-04-18',imp:9917,clicks:55,cost:25.49},
+    {date:'2026-04-19',imp:12003,clicks:70,cost:25.75},
+    {date:'2026-04-20',imp:6813,clicks:63,cost:22.90},
+    {date:'2026-04-21',imp:10670,clicks:64,cost:26.03},
+    {date:'2026-04-22',imp:10852,clicks:56,cost:25.83},
+    {date:'2026-04-23',imp:12677,clicks:61,cost:25.57},
+    {date:'2026-04-24',imp:10878,clicks:63,cost:24.86},
+    {date:'2026-04-25',imp:13243,clicks:62,cost:24.05},
+    {date:'2026-04-26',imp:12432,clicks:73,cost:25.53},
+    {date:'2026-04-27',imp:13423,clicks:56,cost:23.78},
+    {date:'2026-04-28',imp:13318,clicks:63,cost:25.89},
+    {date:'2026-04-29',imp:11299,clicks:57,cost:25.70},
+    {date:'2026-04-30',imp:11818,clicks:67,cost:25.44},
+    {date:'2026-05-01',imp:11394,clicks:66,cost:23.44},
+    {date:'2026-05-02',imp:13574,clicks:77,cost:25.00},
+    {date:'2026-05-03',imp:18518,clicks:85,cost:25.75},
+    {date:'2026-05-04',imp:17805,clicks:70,cost:23.69},
+    {date:'2026-05-05',imp:16804,clicks:79,cost:25.87},
+    {date:'2026-05-06',imp:16463,clicks:73,cost:24.87},
+    {date:'2026-05-07',imp:13549,clicks:61,cost:21.67},
+    {date:'2026-05-08',imp:14963,clicks:79,cost:27.37},
+    {date:'2026-05-09',imp:14017,clicks:59,cost:25.78},
+    {date:'2026-05-10',imp:14320,clicks:77,cost:25.75},
+    {date:'2026-05-11',imp:17632,clicks:80,cost:23.81},
+    {date:'2026-05-12',imp:16895,clicks:81,cost:24.21},
+    {date:'2026-05-13',imp:20739,clicks:89,cost:26.07},
+    {date:'2026-05-14',imp:21329,clicks:95,cost:25.81},
+    {date:'2026-05-15',imp:20253,clicks:96,cost:24.99},
+    {date:'2026-05-16',imp:19627,clicks:87,cost:24.38},
+    {date:'2026-05-17',imp:20666,clicks:90,cost:24.58},
+    {date:'2026-05-18',imp:20352,clicks:95,cost:25.75},
+    {date:'2026-05-19',imp:17728,clicks:83,cost:25.68},
+    {date:'2026-05-20',imp:17093,clicks:80,cost:24.27},
+    {date:'2026-05-21',imp:15714,clicks:66,cost:22.99},
+    {date:'2026-05-22',imp:16753,clicks:74,cost:26.40},
+    {date:'2026-05-23',imp:14247,clicks:73,cost:25.33},
+    {date:'2026-05-24',imp:14119,clicks:78,cost:25.75},
+    {date:'2026-05-25',imp:18750,clicks:86,cost:25.62},
+    {date:'2026-05-26',imp:16415,clicks:82,cost:24.25},
+    {date:'2026-05-27',imp:13784,clicks:81,cost:25.42},
+    {date:'2026-05-28',imp:13042,clicks:75,cost:23.98},
+  ];
+
+  window.DASH_DATA = {
+
+    // ── BUDGET ALLOCATIE PER KANAAL ─────────────────────────────────
+    pacing: [
+      { channel:'Meta Regulier',    color:'#0081FB', start:'2026-04-13', end:'2026-10-31',
+        budget:12000,   spent:1868.12, daysTotal:201, daysPast:58, flight:'I', status:'actief' },
+      { channel:'Meta Influencers', color:'#4267B2', start:'2026-06-15', end:'2026-08-30',
+        budget:10230,   spent:0,       daysTotal:76,  daysPast:0,  flight:'',  status:'gepland' },
+      { channel:'Pinterest',        color:'#E60023', start:'2026-04-13', end:'2026-10-31',
+        budget:5000,    spent:1162.56, daysTotal:201, daysPast:64, flight:'I', status:'actief' },
+      { channel:'Native',           color:'#1ABC9C', start:'2026-05-12', end:'2026-08-30',
+        budget:5000,    spent:1341.08, daysTotal:110, daysPast:35, flight:'I', status:'actief' },
+    ],
+
+    // ── SAMENVATTING PER KANAAL ─────────────────────────────────────
+    summary: [
+      { channel:'Meta Regulier',    color:'#0081FB',
+        imp:997042,  clicks:7052,  ctr:0.71, cpc:0.26, cpm:1.87,
+        spend:1868.12, reach:185150, freq:5.39, budget:12000 },
+      { channel:'Meta Influencers', color:'#4267B2',
+        imp:0, clicks:0, ctr:0, cpc:0, cpm:0,
+        spend:0, reach:0, freq:0, budget:10230 },
+      { channel:'Pinterest',        color:'#E60023',
+        imp:694061, clicks:3411, ctr:0.49, cpc:0.34, cpm:1.68,
+        spend:1162.56, reach:207137, freq:3.35, budget:5000 },
+      { channel:'Native',           color:'#1ABC9C',
+        imp:656294, clicks:995, ctr:0.15, cpc:1.35, cpm:2.04,
+        spend:1341.08, reach:0, freq:0, budget:5000 },
+    ],
+
+    // ── DAGELIJKSE DATA ─────────────────────────────────────────────
+    meta:      metaDaily,
+    pinterest: pinterestDaily,
+
+    // ── META AD-NIVEAU: scaled naar bekende totalen ─────────────────
+    meta_adsets: [
+      { name:'977_Mei_Bereik_Video_2026',   type:'Video – Bereik',
+        imp:660872, reach:118704, clicks:110, ctr:0.02, cpm:1.28, cpc:7.49, spend:842.92 },
+      { name:'977_Mei_Traffic_Static_2026', type:'Static – Traffic',
+        imp:336170, reach:66446,  clicks:6942, ctr:2.07, cpm:3.06, cpc:0.15, spend:1025.20 },
+    ],
+
+    meta_creatives: [
+      { name:'Video_2',      type:'Video',  imp:603733, clicks:103,  ctr:0.02, cpm:1.28, cpc:7.48,  spend:770.12 },
+      { name:'Cafe_static',  type:'Static', imp:128166, clicks:2649, ctr:2.07, cpm:3.22, cpc:0.16,  spend:412.47 },
+      { name:'Strand_static',type:'Static', imp:65860,  clicks:1350, ctr:2.05, cpm:3.02, cpc:0.15,  spend:199.07 },
+      { name:'Bos_static',   type:'Static', imp:52204,  clicks:1139, ctr:2.18, cpm:3.13, cpc:0.14,  spend:163.45 },
+      { name:'Tulpen_static',type:'Static', imp:54231,  clicks:1026, ctr:1.89, cpm:2.51, cpc:0.13,  spend:135.98 },
+      { name:'Musea_static', type:'Static', imp:29763,  clicks:677,  ctr:2.27, cpm:3.31, cpc:0.15,  spend:98.39  },
+      { name:'Video_1',      type:'Video',  imp:28577,  clicks:4,    ctr:0.01, cpm:1.29, cpc:9.20,  spend:36.81  },
+      { name:'Video_3',      type:'Video',  imp:28562,  clicks:3,    ctr:0.01, cpm:1.26, cpc:12.00, spend:35.99  },
+      { name:'Steiger_static',type:'Static',imp:5947,   clicks:101,  ctr:1.70, cpm:2.66, cpc:0.16,  spend:15.84  },
+    ],
+
+    // ── PINTEREST AD-NIVEAU (één campagne) ──────────────────────────
+    pinterest_campaigns: [
+      { name:'977_2026_NL_VisitFlevoland_RTB_Consideration_Traffic',
+        type:'Consideration – Traffic', objective:'Consideration',
+        imp:694061, clicks:3411, ctr:0.49, cpm:1.68, cpc:0.34, spend:1162.56,
+        saves:0, video_views:0 },
+    ],
+
+    // ── META VIDEO VTR — completion milestones per video creative ────
+    // v25/v50/v75/v100 = aantal impressions dat milestone heeft bereikt
+    // Bron: Meta Ads Manager · Bereik campagne · 14 apr – 12 mei 2026
+    meta_video_vtr: [
+      { name:'Video_1', imp:28577,  spend:36.81,  cpm:1.29,
+        v25:16075, v50:11573, v75: 8730, v100: 6289, vtr:22.0 },
+      { name:'Video_2', imp:603733, spend:770.12, cpm:1.28,
+        v25:332055,v50:241493,v75:181120,v100:132821,vtr:22.0 },
+      { name:'Video_3', imp:28562,  spend:35.99,  cpm:1.26,
+        v25:15523, v50:11139, v75: 8282, v100: 5998, vtr:21.0 },
+    ],
+
+    // ── NATIVE READPEAK — topics ─────────────────────────────────────
+    readpeak_topics: [
+      { title:'Waar proef je 7x de smaken van Flevoland?',       clicks:253067, spend:329.29 },
+      { title:'Waar wandel je het allermooist door Flevoland?',   clicks:255377, spend:523.62 },
+      { title:'Visit Flevoland, cadeau van de zee',               clicks:208850, spend:492.17 },
+    ],
+
+    // ── NATIVE READPEAK — ad variations (Readpeak data 12 mei – 9 jun 2026) ──
+    native_variations: [
+      { id:'259229', group:'Cadeau van de zee', label:'V1', imp:45619,  clicks:66,  spend:82.59,  ctr:0.14, cpc:1.25, cpm:1.81 },
+      { id:'259367', group:'Smaken',            label:'V1', imp:50758,  clicks:68,  spend:90.92,  ctr:0.13, cpc:1.34, cpm:1.79 },
+      { id:'259368', group:'Smaken',            label:'V2', imp:46498,  clicks:58,  spend:74.70,  ctr:0.12, cpc:1.29, cpm:1.61 },
+      { id:'259369', group:'Smaken',            label:'V3', imp:47728,  clicks:65,  spend:86.60,  ctr:0.14, cpc:1.33, cpm:1.81 },
+      { id:'259370', group:'Smaken',            label:'V4', imp:47083,  clicks:62,  spend:77.07,  ctr:0.13, cpc:1.24, cpm:1.64 },
+      { id:'259371', group:'Wandelen',          label:'V1', imp:48756,  clicks:77,  spend:110.27, ctr:0.16, cpc:1.43, cpm:2.26 },
+      { id:'259372', group:'Wandelen',          label:'V2', imp:51268,  clicks:69,  spend:75.96,  ctr:0.13, cpc:1.10, cpm:1.48 },
+      { id:'259373', group:'Wandelen',          label:'V3', imp:48192,  clicks:69,  spend:90.50,  ctr:0.14, cpc:1.31, cpm:1.88 },
+      { id:'259374', group:'Wandelen',          label:'V4', imp:47496,  clicks:52,  spend:71.46,  ctr:0.11, cpc:1.37, cpm:1.50 },
+      { id:'259375', group:'Wandelen',          label:'V5', imp:59665,  clicks:127, spend:171.43, ctr:0.21, cpc:1.35, cpm:2.87 },
+      { id:'259376', group:'Cadeau van de zee', label:'V2', imp:52741,  clicks:95,  spend:144.90, ctr:0.18, cpc:1.53, cpm:2.75 },
+      { id:'259377', group:'Cadeau van de zee', label:'V3', imp:51335,  clicks:74,  spend:100.50, ctr:0.14, cpc:1.36, cpm:1.96 },
+      { id:'259378', group:'Cadeau van de zee', label:'V4', imp:59155,  clicks:113, spend:164.18, ctr:0.19, cpc:1.45, cpm:2.78 },
+    ],
+  };
+})();
+</script>
+<script src="./assets/dashboard-core.js"></script>
+</body>
+</html>
